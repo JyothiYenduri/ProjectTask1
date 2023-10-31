@@ -16,7 +16,7 @@ public class EmailServiceImpl implements EmailService{
 		// TODO Auto-generated method stub
 		SimpleMailMessage message=new SimpleMailMessage();
 		message.setTo(to);
-		message.setSubject("OTP for Applicant Registration");
+		message.setSubject("OTP to verify your Email");
 		message.setText("Your OTP is: "+otp);
 		javaMailSender.send(message);
 	}

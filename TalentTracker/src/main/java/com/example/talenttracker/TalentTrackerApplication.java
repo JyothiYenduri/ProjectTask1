@@ -11,7 +11,7 @@ public class TalentTrackerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TalentTrackerApplication.class, args);
-		System.out.println("Hey I learn how to push, pull pack & commit changes again using GitHub");
+		//System.out.println("Hey I learn how to push, pull pack & commit changes again using GitHub");
 	}
 
 }
