@@ -10,4 +10,8 @@ public interface RegisterRepository extends JpaRepository<Applicant, Long>{
 
 	boolean existsByEmail(String email);
 
+	Applicant getApplicantById(long applicantid);
+
+	
+
 }
