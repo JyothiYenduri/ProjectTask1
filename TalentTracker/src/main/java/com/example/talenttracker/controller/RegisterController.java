@@ -73,6 +73,7 @@ public class RegisterController {
 	@PostMapping("/applicant/registration")
 	public ResponseEntity<String> register(@RequestBody Applicant applicant){
 		return registerService.saveApplicant(applicant);
+		
 	}
 	
 	@PostMapping("/applicant/forgotpassword/sendotp")

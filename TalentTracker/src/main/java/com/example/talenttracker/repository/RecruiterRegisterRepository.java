@@ -10,4 +10,6 @@ public interface RecruiterRegisterRepository extends JpaRepository<Recruiter, Lo
 
 	boolean existsByEmail(String email);
 
+	Recruiter findByRecruiterId(Long recruiterId);
+
 }

@@ -1,5 +1,7 @@
 package com.example.talenttracker.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +33,12 @@ public class RecruiterRegisterServiceImpl implements RecruiterRegisterService{
 		recruiter.setPwd(passwordEncoder.encode(recruiter.getPwd()));
 		recruiterRepo.save(recruiter);
 		return ResponseEntity.ok("Recruiter registered successfully");
+	}
+
+	@Override
+	public List<Recruiter> getRecruiters() {
+		// TODO Auto-generated method stub
+		return recruiterRepo.findAll();
 	}
 
 }
