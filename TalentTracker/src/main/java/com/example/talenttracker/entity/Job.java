@@ -8,15 +8,25 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @JsonIgnoreProperties({"recruiters"})
 public class Job {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	@Column(nullable = false)
 	private String jobTitle;
@@ -42,6 +52,7 @@ public class Job {
 	@JoinTable(name = "job_skills", joinColumns = @JoinColumn(name="job_id"),inverseJoinColumns = @JoinColumn(name="skill_id"))
 	private Set<RecruiterSkills> skillsRequired=new HashSet<>();
 	
+	@ManyToOne
 	private Recruiter recruiter;
 	
 	private String jobHighlights;
