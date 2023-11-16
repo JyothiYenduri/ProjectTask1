@@ -41,7 +41,7 @@ public class Job {
 	@Column(nullable = false)
 	private String location;
 	@Column(nullable = false)
-	private String empType;
+	private String employeeType;
 	@Column(nullable = false)
 	private String industryType;
 	@Column(nullable = false)
