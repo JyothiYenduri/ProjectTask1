@@ -1,6 +1,7 @@
 package com.example.talenttracker.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,5 +57,13 @@ public interface JobRepository extends JpaRepository<Job,Long>{
 	);
 
 	Page<Job> findAll(Specification<Job> searchJobs, Pageable unpaged);
+	
+	@Query("SELECT DISTINCT j FROM Job j " +
+	           "JOIN j.skillsRequired r " +
+	           "WHERE LOWER(r.skillName) IN :skillNames")
+	List<Job> findBySkillsRequiredIgnoreCaseAndSkillNameIn(Set<String> skillNames);
+
+	@Query("SELECT DISTINCT j FROM Job j JOIN j.skillsRequired s WHERE s.skillName = :skillName")
+	Page<Job> findJobsBySkillName(String skillName, Pageable pageable);
 
 }

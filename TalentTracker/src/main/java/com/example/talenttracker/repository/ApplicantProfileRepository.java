@@ -6,4 +6,6 @@ import com.example.talenttracker.entity.ApplicantProfile;
 
 public interface ApplicantProfileRepository extends JpaRepository<ApplicantProfile, Long>{
 
+	ApplicantProfile findByApplicantId(long applicantId);
+
 }
