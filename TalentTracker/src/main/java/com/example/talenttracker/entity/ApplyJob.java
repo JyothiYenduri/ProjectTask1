@@ -3,6 +3,9 @@ package com.example.talenttracker.entity;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -26,6 +29,8 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@JsonIgnoreType
+@JsonIgnoreProperties
 public class ApplyJob {
 
 	@Id
@@ -54,6 +59,12 @@ public class ApplyJob {
 // 
 //	}
 	@OneToMany(mappedBy = "applyJob", cascade = CascadeType.ALL)
-	@JsonManagedReference
+//	@JsonManagedReference
+	@JsonIgnore
 	private List<ScheduleInterview> scheduleInterviews;
+	
+	@OneToMany(mappedBy = "applyJob", cascade = CascadeType.ALL)
+	@JsonManagedReference
+	@JsonIgnore
+	private List<ApplicantStatusHistory> statusHistory;
 }

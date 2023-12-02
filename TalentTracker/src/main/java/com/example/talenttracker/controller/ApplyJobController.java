@@ -13,11 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.talenttracker.dto.ApplicantJobInterviewDTO;
 import com.example.talenttracker.dto.AppliedApplicantInfo;
+import com.example.talenttracker.entity.ApplicantStatusHistory;
 import com.example.talenttracker.entity.Job;
 import com.example.talenttracker.entity.ScheduleInterview;
 import com.example.talenttracker.service.ApplyJobService;
 import com.example.talenttracker.service.scheduleInterviewService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/applyJob")
@@ -65,6 +69,37 @@ public class ApplyJobController {
 		return ResponseEntity.ok(updateStatus);
 	}
 	
+	@GetMapping("/recruiter/{applicantId}/interviews/{status}")
+	public List<ApplicantJobInterviewDTO> getApplicantJobInterviewInfo(@PathVariable long applicantId, @PathVariable String status){
+		return applyJobService.getApplicantJobInterviewInfoForRecruiterAndStatus(applicantId,status);
+		
+	}
 	
+	@GetMapping("/applicant/interviewstatus/{applicantId}")
+	public List<ApplicantJobInterviewDTO> getApplicantJobInterviewStatus(@PathVariable long applicantId){
+		return applyJobService.getApplicantJobInterviewStatus(applicantId);
+		
+	}
+	
+	@GetMapping("/applicant/check-interview-status/{applicantId}")
+	public ResponseEntity<String> checkInterviewStatus(@PathVariable long applicantId){
+		String status=applyJobService.checkInterviewStatus(applicantId);
+		return ResponseEntity.ok(status);
+	}
+	
+	@GetMapping("/recruiters/applyjob-status-history/{applyJobId}")
+	public ResponseEntity<List<ApplicantStatusHistory>> getApplicantStatusHistory(@PathVariable long applyJobId){
+		try {
+			List<ApplicantStatusHistory> statusHistory=applyJobService.getApplicantStatusHistory(applyJobId);
+			return ResponseEntity.ok(statusHistory);
+		} catch (EntityNotFoundException e) {
+			// TODO: handle exception
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}catch (Exception e) {
+			// TODO: handle exception
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+		
+	}
 	
 }
