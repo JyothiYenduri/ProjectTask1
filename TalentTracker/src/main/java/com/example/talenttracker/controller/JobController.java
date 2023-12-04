@@ -33,7 +33,7 @@ public class JobController {
 	private RecruiterRegisterRepository recruiterRepository;
 	
 	@PostMapping("/recruiter/postjob/{recruiterid}")
-	public ResponseEntity<String> postJob(@RequestBody @Valid Job job, @PathVariable Long recruiterid){
+	public ResponseEntity<String> postJob(@RequestBody Job job, @PathVariable Long recruiterid){
 		Recruiter recruiter=recruiterRepository.findByRecruiterId(recruiterid);
 		if(recruiter!=null) {
 			job.setRecruiter(recruiter);

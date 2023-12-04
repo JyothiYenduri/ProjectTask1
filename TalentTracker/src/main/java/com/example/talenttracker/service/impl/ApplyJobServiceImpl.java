@@ -1,5 +1,6 @@
 package com.example.talenttracker.service.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,12 +11,17 @@ import org.springframework.stereotype.Service;
 
 import com.example.talenttracker.dto.ApplicantJobInterviewDTO;
 import com.example.talenttracker.dto.AppliedApplicantInfo;
+import com.example.talenttracker.entity.Alerts;
 import com.example.talenttracker.entity.Applicant;
 import com.example.talenttracker.entity.ApplicantStatusHistory;
 import com.example.talenttracker.entity.ApplyJob;
+import com.example.talenttracker.entity.CompanyProfile;
 import com.example.talenttracker.entity.Job;
+import com.example.talenttracker.entity.Recruiter;
+import com.example.talenttracker.repository.AlertsRepository;
 import com.example.talenttracker.repository.ApplicantStatusHistoryRepository;
 import com.example.talenttracker.repository.ApplyJobRepository;
+import com.example.talenttracker.repository.CompanyProfileRepository;
 import com.example.talenttracker.repository.JobRepository;
 import com.example.talenttracker.repository.RegisterRepository;
 import com.example.talenttracker.repository.ScheduleInterviewRepository;
@@ -40,6 +46,12 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 	@Autowired
 	private ApplicantStatusHistoryRepository statusHistoryRepository;
 	
+	@Autowired
+	private AlertsRepository alertsRepository;
+	
+	@Autowired
+	private CompanyProfileRepository companyProfileRepository;
+	
 	@Override
 	public String applyJobForApplicant(long applicantId, long jobId) {
 		// TODO Auto-generated method stub
@@ -55,11 +67,34 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 				applyJob.setJob(job);
 				applyJobRepository.save(applyJob);
 				saveStatusHistory(applyJob, applyJob.getApplicationStatus());
-				return "Job applied successfully";
-			}else {
+//				CompanyProfile cp=new CompanyProfile();
+//				sendAlerts(applyJob,applyJob.getApplicationStatus(),cp.getCompanyName());
+				Job applyJobJob = applyJob.getJob();
+	            if (applyJobJob != null) {
+	                Recruiter recruiter = applyJobJob.getRecruiter();
+	                if (recruiter != null) {
+	                    String companyName = recruiter.getCompanyName();
+	                    if (companyName != null) {
+	                        String cN = recruiter.getCompanyName();
+	                        sendAlerts(applyJob, applyJob.getApplicationStatus(), cN);
+	                        return "Job applied successfully";
+	                    }
+	                }
+	            }return "Company information not found for the given ApplyJob";
+	        } else {
 				return "Job has already been applied";
 			}
 		}
+	}
+
+	private void sendAlerts(ApplyJob applyJob, String applicationStatus, String companyName) {
+		// TODO Auto-generated method stub
+		Alerts alerts=new Alerts();
+		alerts.setApplyJob(applyJob);
+		alerts.setCompanyName(companyName);
+		alerts.setStatus(applicationStatus);
+		alerts.setChangeDate(LocalDate.now());
+		alertsRepository.save(alerts);
 	}
 
 	private void saveStatusHistory(ApplyJob applyJob, String applicationStatus) {
@@ -103,10 +138,20 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 	public String updateApplicantStatus(long applyJobId, String newStatus) {
 		// TODO Auto-generated method stub
 		ApplyJob applyJob=applyJobRepository.findById(applyJobId).orElseThrow(()->new EntityNotFoundException("Apply job not found"));
+		
+		Job job = applyJob.getJob();
+	    if (job != null) {
+	        Recruiter recruiter = job.getRecruiter();
+	        if (recruiter != null) {
+	            String companyName = recruiter.getCompanyName();
+	            if (companyName != null) {
 		applyJob.setApplicationStatus(newStatus);
 		applyJobRepository.save(applyJob);
 		saveStatusHistory(applyJob, applyJob.getApplicationStatus());
+		sendAlerts(applyJob,applyJob.getApplicationStatus(),companyName);
 		return "Applicant status updated to: "+newStatus;
+	            }}}
+	    return "Company information not found for the given ApplyJob";
 	}
 
 	@Override
@@ -143,6 +188,12 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 	public List<ApplicantStatusHistory> getApplicantStatusHistory(long applyJobId) {
 		// TODO Auto-generated method stub
 		return statusHistoryRepository.findByApplyJob_ApplyJobIdOrderByChangeDateDesc(applyJobId);
+	}
+
+	@Override
+	public List<Alerts> getAlerts(long applyJobId) {
+		// TODO Auto-generated method stub
+		return alertsRepository.findByApplyJob_ApplyJobIdOrderByChangeDateDesc(applyJobId);
 	}
 	
 	

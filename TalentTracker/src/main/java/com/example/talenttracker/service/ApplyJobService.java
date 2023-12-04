@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.talenttracker.dto.ApplicantJobInterviewDTO;
 import com.example.talenttracker.dto.AppliedApplicantInfo;
+import com.example.talenttracker.entity.Alerts;
 import com.example.talenttracker.entity.ApplicantStatusHistory;
 import com.example.talenttracker.entity.Job;
 
@@ -24,5 +25,7 @@ public interface ApplyJobService {
 	String checkInterviewStatus(long applicantId);
 
 	List<ApplicantStatusHistory> getApplicantStatusHistory(long applyJobId);
+
+	List<Alerts> getAlerts(long applyJobId);
 
 }

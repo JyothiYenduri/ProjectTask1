@@ -67,4 +67,11 @@ public class ApplyJob {
 	@JsonManagedReference
 	@JsonIgnore
 	private List<ApplicantStatusHistory> statusHistory;
+	
+	@OneToMany(mappedBy = "applyJob",cascade = CascadeType.ALL)
+	@JsonManagedReference
+	@JsonIgnore
+	private List<Alerts> alerts;
+	
+	//private int alertCount=0;
 }

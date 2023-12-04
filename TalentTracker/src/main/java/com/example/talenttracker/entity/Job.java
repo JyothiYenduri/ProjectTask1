@@ -28,7 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties({"recruiters"})
-@JsonIgnoreType
+//@JsonIgnoreType
 public class Job {
 
 	@Id

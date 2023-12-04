@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.talenttracker.dto.ApplicantJobInterviewDTO;
 import com.example.talenttracker.dto.AppliedApplicantInfo;
+import com.example.talenttracker.entity.Alerts;
 import com.example.talenttracker.entity.ApplicantStatusHistory;
 import com.example.talenttracker.entity.Job;
 import com.example.talenttracker.entity.ScheduleInterview;
@@ -101,5 +102,22 @@ public class ApplyJobController {
 		}
 		
 	}
+	
+	@GetMapping("/applicant/job-alerts/{applyJobId}")
+	public ResponseEntity<List<Alerts>> getAlerts(@PathVariable long applyJobId){
+		try {
+			List<Alerts> notifications=applyJobService.getAlerts(applyJobId);
+			return ResponseEntity.ok(notifications);
+		} catch (EntityNotFoundException e) {
+			// TODO: handle exception
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}catch (Exception e) {
+			// TODO: handle exception
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+		
+	}
+	
+	
 	
 }
