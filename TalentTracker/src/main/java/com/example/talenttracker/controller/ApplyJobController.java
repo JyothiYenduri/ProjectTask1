@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.talenttracker.dto.ApplicantJobInterviewDTO;
 import com.example.talenttracker.dto.AppliedApplicantInfo;
 import com.example.talenttracker.entity.Alerts;
+import com.example.talenttracker.entity.Applicant;
 import com.example.talenttracker.entity.ApplicantStatusHistory;
 import com.example.talenttracker.entity.Job;
 import com.example.talenttracker.entity.ScheduleInterview;
+import com.example.talenttracker.repository.ApplicantProfileRepository;
+import com.example.talenttracker.repository.RegisterRepository;
 import com.example.talenttracker.service.ApplyJobService;
 import com.example.talenttracker.service.scheduleInterviewService;
 
@@ -32,6 +35,8 @@ public class ApplyJobController {
 	private ApplyJobService applyJobService;
 	@Autowired
 	private scheduleInterviewService scheduleInterviewService;
+	@Autowired
+	private RegisterRepository applicantRepository;
 	
 	@PostMapping("/applicant/applyJob/{applicantId}/{jobId}")
 	public String applyJobForApplicant(@PathVariable long applicantId, @PathVariable long jobId) {
@@ -107,6 +112,10 @@ public class ApplyJobController {
 	public ResponseEntity<List<Alerts>> getAlerts(@PathVariable long applyJobId){
 		try {
 			List<Alerts> notifications=applyJobService.getAlerts(applyJobId);
+			
+			// Reset alertCount to zero when fetching alerts
+	        applyJobService.resetAlertCount(applyJobId);
+	        
 			return ResponseEntity.ok(notifications);
 		} catch (EntityNotFoundException e) {
 			// TODO: handle exception
@@ -118,6 +127,19 @@ public class ApplyJobController {
 		
 	}
 	
-	
+	@GetMapping("/applicants/{applicantId}/unread-alert-count")
+	public ResponseEntity<Integer> getUnreadAlertCount(@PathVariable long applicantId) {
+	    try {
+	        Applicant applicant = applicantRepository.findById(applicantId);
+	        if (applicant != null) {
+	            int unreadAlertCount = applicant.getAlertCount();
+	            return ResponseEntity.ok(unreadAlertCount);
+	        } else {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	        }
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
+	}
 	
 }

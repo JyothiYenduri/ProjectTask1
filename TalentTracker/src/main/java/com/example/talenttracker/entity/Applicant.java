@@ -38,6 +38,8 @@ public class Applicant {
 	private String password;
 	private String roles="Job_Applicant";
 	
+	private int alertCount=0;
+	
 	@OneToMany(mappedBy = "applicant")
 	@JsonIgnore
 	private Set<SavedJob> savedJobs=new HashSet<>();

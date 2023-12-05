@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.example.talenttracker.dto.ApplicantJobInterviewDTO;
@@ -52,6 +54,9 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 	@Autowired
 	private CompanyProfileRepository companyProfileRepository;
 	
+	@Autowired
+	private JavaMailSender javaMailSender;
+	
 	@Override
 	public String applyJobForApplicant(long applicantId, long jobId) {
 		// TODO Auto-generated method stub
@@ -66,6 +71,11 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 				applyJob.setApplicant(applicant);
 				applyJob.setJob(job);
 				applyJobRepository.save(applyJob);
+				
+				// Increment alert count
+		        incrementAlertCount(applyJob.getApplicant());
+		        
+		        //SaveStatusHistory
 				saveStatusHistory(applyJob, applyJob.getApplicationStatus());
 //				CompanyProfile cp=new CompanyProfile();
 //				sendAlerts(applyJob,applyJob.getApplicationStatus(),cp.getCompanyName());
@@ -76,6 +86,7 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 	                    String companyName = recruiter.getCompanyName();
 	                    if (companyName != null) {
 	                        String cN = recruiter.getCompanyName();
+	                        //SendAlerts
 	                        sendAlerts(applyJob, applyJob.getApplicationStatus(), cN);
 	                        return "Job applied successfully";
 	                    }
@@ -95,7 +106,37 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 		alerts.setStatus(applicationStatus);
 		alerts.setChangeDate(LocalDate.now());
 		alertsRepository.save(alerts);
+		// Send email to the applicant
+        sendEmailToApplicant(applyJob.getApplicant().getEmail(), companyName, applicationStatus);
 	}
+
+	private void sendEmailToApplicant(String toEmail, String companyName, String applicationStatus) {
+		// TODO Auto-generated method stub
+		try {
+//            MimeMessage message = javaMailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+			SimpleMailMessage message=new SimpleMailMessage();
+			// Set email properties
+			message.setTo(toEmail);
+			message.setSubject("Job Alert Notification");
+			// Customize your email content
+            String content = "Dear Applicant,\n\n"
+                    + "Your job application status has been updated to: " + applicationStatus + "\n"
+                    + "Company: " + companyName + "\n\n"
+                    + "Thank you.\n\n"
+                    + "Best regards,\n"
+                    + "Your Company Name";
+
+            message.setText(content);
+            
+            // Send the email
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            // Handle exceptions, log, and consider appropriate error handling
+        	e.printStackTrace();
+        }
+    }
+		
 
 	private void saveStatusHistory(ApplyJob applyJob, String applicationStatus) {
 		// TODO Auto-generated method stub
@@ -147,11 +188,24 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 	            if (companyName != null) {
 		applyJob.setApplicationStatus(newStatus);
 		applyJobRepository.save(applyJob);
+		//Increment alert count
+		incrementAlertCount(applyJob.getApplicant());
+		// Save status history
 		saveStatusHistory(applyJob, applyJob.getApplicationStatus());
+		//Send alerts
 		sendAlerts(applyJob,applyJob.getApplicationStatus(),companyName);
 		return "Applicant status updated to: "+newStatus;
 	            }}}
 	    return "Company information not found for the given ApplyJob";
+	}
+
+	private void incrementAlertCount(Applicant applicant) {
+		// TODO Auto-generated method stub
+		if (applicant != null) {
+            int currentAlertCount = applicant.getAlertCount();
+            applicant.setAlertCount(currentAlertCount + 1);
+            applicantRegisterRepository.save(applicant);
+        }
 	}
 
 	@Override
@@ -194,6 +248,21 @@ public class ApplyJobServiceImpl implements ApplyJobService{
 	public List<Alerts> getAlerts(long applyJobId) {
 		// TODO Auto-generated method stub
 		return alertsRepository.findByApplyJob_ApplyJobIdOrderByChangeDateDesc(applyJobId);
+	}
+
+	@Override
+	public void resetAlertCount(long applyJobId) {
+		// TODO Auto-generated method stub
+		try {
+	        ApplyJob applyJob = applyJobRepository.findById(applyJobId)
+	                .orElseThrow(() -> new EntityNotFoundException("Apply job not found"));
+
+	        applyJob.getApplicant().setAlertCount(0);
+	        applyJobRepository.save(applyJob);
+	    } catch (Exception e) {
+	        // Handle exceptions, log, and consider appropriate error handling
+	    	e.printStackTrace();
+	    }
 	}
 	
 	

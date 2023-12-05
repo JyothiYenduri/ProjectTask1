@@ -28,4 +28,8 @@ public interface ApplyJobService {
 
 	List<Alerts> getAlerts(long applyJobId);
 
+	void resetAlertCount(long applyJobId);
+
+//	String resetAlertCount(long applicantId);
+
 }
