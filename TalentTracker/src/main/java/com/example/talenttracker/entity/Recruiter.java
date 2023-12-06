@@ -35,4 +35,8 @@ public class Recruiter {
 	@JsonIgnore
 	private List<Job> jobs;
 	
+	@OneToMany(cascade = CascadeType.ALL)
+	@JsonIgnore
+	private List<TeamMember> teamMembers;
+	
 }
